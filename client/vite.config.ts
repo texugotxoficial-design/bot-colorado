@@ -7,6 +7,10 @@ export default defineConfig({
   css: {
     postcss: './postcss.config.js',
   },
+  build: {
+    outDir: '../server/dist/public',
+    emptyOutDir: true
+  },
   server: {
     port: 5173,
     proxy: {

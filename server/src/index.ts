@@ -17,8 +17,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Paths - Caminhos robustos para producao
-const distPath = path.resolve(__dirname, '../../client/dist');
+// Paths - Unificados para SquareCloud
+const distPath = path.resolve(__dirname, './public');
 const uploadsPath = path.resolve(__dirname, '../uploads');
 
 console.log(`📂 Servindo Frontend de: ${distPath}`);
