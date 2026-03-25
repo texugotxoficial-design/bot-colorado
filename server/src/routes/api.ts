@@ -223,11 +223,11 @@ router.delete('/options/attachments/:id', async (req, res) => {
 // SETTINGS (Global Banner, Reminders Toggle, Pause, Menu Type)
 router.post('/settings', async (req, res) => {
     try {
-        const { marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused, resetSecret } = req.body;
+        const { menuTitle, menuType, globalPaused, resetSecret } = req.body;
         const s = await prisma.settings.upsert({
             where: { id: 'global' },
-            update: { marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused, resetSecret },
-            create: { id: 'global', marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused, resetSecret }
+            update: { menuTitle, menuType, globalPaused, resetSecret },
+            create: { id: 'global', menuTitle, menuType, globalPaused, resetSecret, billingRate: 0.20 }
         });
         res.json(s);
     } catch (e: any) {
@@ -285,31 +285,7 @@ router.delete('/settings/menu-image', async (req, res) => {
     }
 });
 
-// DAILY REMINDERS
-router.get('/reminders', async (req, res) => {
-    try {
-        const r = await prisma.dailyReminder.findMany();
-        res.json(r);
-    } catch (e: any) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-router.post('/reminders', async (req, res) => {
-    try {
-        const { dayOfWeek, message, isActive } = req.body;
-        const r = await prisma.dailyReminder.upsert({
-            where: { dayOfWeek },
-            update: { message, isActive },
-            create: { dayOfWeek, message, isActive }
-        });
-        res.json(r);
-    } catch (e: any) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-// STATUS SCHEDULES
+// STATUS SCHEDULES (Publicação agendada uma única vez no futuro)
 router.get('/status-schedules', async (req, res) => {
     try {
         const s = await prisma.statusSchedule.findMany({
