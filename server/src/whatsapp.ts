@@ -9,6 +9,9 @@ const prisma = new PrismaClient();
 export let botStatus = 'OFFLINE';
 export let lastQr = '';
 
+// SEGURANÇA: Só responder mensagens chegadas APÓS o bot ligar (Evita responder historico)
+const botStartTime = Math.floor(Date.now() / 1000);
+
 // MEMÓRIA DE CURTO PRAZO (Anti-Eco / Throttling)
 const lastMessageTimes = new Map<string, number>();
 
@@ -78,6 +81,11 @@ const replyWithTyping = async (msg: Message, content: any, options?: any) => {
 
 whatsapp.on('message_create', async (msg) => {
     try {
+        // SEGURANÇA MÁXIMA ANTI-HISTÓRICO: Ignorar mensagens do passado
+        if (msg.timestamp < botStartTime) {
+            return;
+        }
+
         const isSelfChat = msg.from === msg.to; // Conversar consigo mesmo (Teste)
         const hasMenuSignature = msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━');
 
