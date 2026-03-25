@@ -83,11 +83,19 @@ const replyWithTyping = async (msg: Message, content: any, options: any = {}) =>
 
 whatsapp.on('message_create', async (msg) => {
     try {
-        // SEGURANÇA MÁXIMA: Ignorar mensagens do passado (Grace period de 30s)
-        if (msg.timestamp < botStartTime) return;
+        const nowSec = Math.floor(Date.now() / 1000);
+        console.log(`🔍 [EVENTO] msg.timestamp=${msg.timestamp} | botStartTime=${botStartTime} | diff=${msg.timestamp - botStartTime}`);
 
-        // FILTRO DE ORIGEM: Ignorar Status, Broadcasts, Newsletters e Grupos
-        if (msg.from === 'status@broadcast' || msg.from.includes('@broadcast') || msg.from.includes('@newsletter')) return;
+        // SEGURANÇA MÁXIMA: Ignorar mensagens do passado (Grace period de 2 min)
+        if (msg.timestamp < botStartTime) {
+            console.log(`🚫 [GHOST] Mensagem antiga de ${msg.from} ignorada (Segurança Histórica).`);
+            return;
+        }
+
+        // FILTRO DE ORIGEM: Ignorar Status, Broadcasts, Newsletters, Grupos e Notificações vazias
+        if (msg.isStatus || !msg.body || msg.from === 'status@broadcast' || msg.from.includes('@broadcast') || msg.from.includes('@newsletter')) {
+            return;
+        }
         if (msg.from.includes('@g.us')) return;
 
         const isSelfChat = msg.from === msg.to; // Conversar consigo mesmo (Teste)
