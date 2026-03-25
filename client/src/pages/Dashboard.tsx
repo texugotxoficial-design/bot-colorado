@@ -275,13 +275,22 @@ const Dashboard = () => {
                         <button 
                             onClick={async () => {
                                 if (window.confirm('Deseja remover a foto do encarte?')) {
-                                    await api.delete('/settings/menu-image');
-                                    fetchData();
+                                    try {
+                                        setIsSaving(true);
+                                        await api.delete('/settings/menu-image');
+                                        await fetchData();
+                                        alert('Foto removida com sucesso!');
+                                    } catch (e: any) {
+                                        console.error('Erro ao remover foto:', e);
+                                        alert('Erro ao apagar imagem: ' + (e.response?.data?.error || e.message));
+                                    } finally {
+                                        setIsSaving(false);
+                                    }
                                 }
                             }}
                             className="flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-400 transition-all"
                         >
-                            <Trash2 size={16} /> REMOVER FOTO
+                            <Trash2 size={16} /> {isSaving ? 'APAGANDO...' : 'REMOVER FOTO'}
                         </button>
                     )}
                 </div>
