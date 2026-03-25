@@ -287,24 +287,26 @@ const Dashboard = () => {
                     </h3>
                     {status.menuImage && (
                         <button 
+                            disabled={isSaving}
                             onClick={async () => {
-                                console.log('🗑️ Clique detectado no botão de remover');
-                                if (window.confirm('⚠️ DESEJA APAGAR ESTA FOTO AGORA?')) {
+                                console.log('🗑️ [BOTAO] Clique Detectado em REMOVER FOTO');
+                                if (window.confirm('⚠️ ATENÇÃO: Deseja apagar esta foto do robô definitivamente?')) {
                                     try {
                                         setIsSaving(true);
-                                        console.log('🗑️ Enviando comando DELETE...');
-                                        await api.delete('/settings/menu-image');
+                                        console.log('🗑️ [API] Solicitando DELETE /settings/menu-image...');
+                                        const res = await api.delete('/settings/menu-image');
+                                        console.log('✅ [API] Resposta do Servidor:', res.data);
                                         await fetchData();
-                                        alert('✅ PRONTO! A foto foi removida do robô.');
+                                        alert('✨ PRONTO! Foto removida com sucesso no robô.');
                                     } catch (e: any) {
-                                        console.error('❌ Erro completo:', e);
+                                        console.error('❌ [ERRO] Falha ao remover foto:', e);
                                         alert('❌ ERRO AO APAGAR: ' + (e.response?.data?.error || e.message));
                                     } finally {
                                         setIsSaving(false);
                                     }
                                 }
                             }}
-                            className="flex items-center gap-2 text-[10px] font-black text-amber-500 hover:text-amber-400 p-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-all border border-amber-500/20"
+                            className="flex items-center gap-2 text-[10px] font-black text-amber-500 hover:text-amber-400 p-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-all border border-amber-500/20 disabled:opacity-50"
                         >
                             <Trash2 size={14} /> {isSaving ? 'APAGANDO...' : 'X APAGAR FOTO AGORA'}
                         </button>
@@ -315,9 +317,9 @@ const Dashboard = () => {
                     {status.menuImage ? (
                         <div className="relative group">
                             <img 
-                                src={`${api.defaults.baseURL?.replace('/api', '')}/${status.menuImage}`} 
+                                src={`${api.defaults.baseURL?.replace('/api', '')}/${status.menuImage}?t=${Date.now()}`} 
                                 alt="Banner Atual" 
-                                className="w-full md:w-48 h-48 object-cover rounded-3xl border-2 border-slate-800 group-hover:border-purple-500/50 transition-all"
+                                className="w-full md:w-48 h-48 object-cover rounded-3xl border-2 border-slate-800 group-hover:border-purple-500/50 transition-all shadow-2xl"
                             />
                             <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center rounded-3xl">
                                 <p className="text-[10px] font-bold text-white uppercase text-center px-4">Foto Ativa no WhatsApp</p>
