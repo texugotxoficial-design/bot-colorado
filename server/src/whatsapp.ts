@@ -76,13 +76,16 @@ const replyWithTyping = async (msg: Message, content: any, options?: any) => {
 whatsapp.on('message_create', async (msg) => {
     try {
         // SEGURANÇA MÁXIMA ANTI-LOOP
-        // 1. Ignorar se a mensagem foi enviada pelo próprio Bot
-        if (msg.fromMe) return;
+        // 1. Se for mensagem pra fora (cliente), ignorar se for fromMe
+        if (msg.fromMe && msg.from !== msg.to) return;
 
-        // 2. Ignorar se a mensagem contiver a "assinatura" visual do bot
-        if (msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━')) return;
+        // 2. Se for mensagem pra você mesmo (teste), ignorar apenas se for o divisor (loop)
+        if (msg.fromMe && msg.from === msg.to && msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━')) return;
 
-        // 3. Ignorar Grupos
+        // 3. Se for mensagem recebida de clientes, ignorar se tiver o divisor (para evitar loop se o cliente reenviar sua msg)
+        if (!msg.fromMe && msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━')) return;
+
+        // 4. Ignorar Grupos
         if (msg.from.includes('@g.us')) return;
 
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
