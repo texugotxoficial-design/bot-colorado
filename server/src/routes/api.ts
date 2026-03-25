@@ -85,9 +85,19 @@ router.get('/analytics/summary', async (req, res) => {
 
 router.post('/analytics/reset', async (req, res) => {
     try {
+        console.log('🧹 [API] Solicitando limpeza total de estatísticas...');
+        // 1. Limpa logs de interações (Gráficos e Top Opções)
         await prisma.analyticsLog.deleteMany({});
+        
+        // 2. Zerar o contador global de mensagens em Settings
+        await prisma.settings.updateMany({
+            data: { messageCount: 0 }
+        });
+
+        console.log('✅ [API] Estatísticas e contador global zerados com sucesso!');
         res.json({ success: true });
     } catch (e: any) {
+        console.error('❌ [API] Erro ao zerar estatísticas:', e);
         res.status(500).json({ error: e.message });
     }
 });
