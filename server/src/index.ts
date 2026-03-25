@@ -17,9 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Paths
-const distPath = path.resolve(__dirname, '../../client/dist');
-const uploadsPath = path.resolve(__dirname, '../uploads');
+// Paths - Usando caminhos absolutos baseados na raiz do projeto
+const rootPath = process.cwd();
+const distPath = path.join(rootPath, 'client/dist');
+const uploadsPath = path.join(rootPath, 'server/uploads');
 
 // Create uploads if not exists
 if (!fs.existsSync(uploadsPath)) {
