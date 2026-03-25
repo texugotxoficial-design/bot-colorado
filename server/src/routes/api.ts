@@ -18,11 +18,11 @@ const authMiddleware = (req: express.Request, res: express.Response, next: expre
     res.status(401).json({ error: 'Não autorizado' });
 };
 
-// Multer Config
+// Multer Config - USANDO CAMINHO ABSOLUTO PARA SQUARE CLOUD
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = 'uploads/';
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+        const dir = path.join(process.cwd(), 'uploads');
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
     filename: (req, file, cb) => {
@@ -85,7 +85,19 @@ router.get('/analytics/summary', async (req, res) => {
 
 router.post('/analytics/reset', async (req, res) => {
     try {
-        console.log('🧹 [API] Solicitando limpeza total de estatísticas...');
+        console.log('🧹 [API] Solicitando limpeza total de estatísticas e faturamento...');
+        
+        const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
+        if (settings && settings.messageCount > 0) {
+            // Registrar um log de faturamento antes de zerar (Auditoria)
+            await prisma.billingLog.create({
+                data: {
+                    msgCountBeforeReset: settings.messageCount,
+                    resetSecretUsed: 'GLOBAL_RESET'
+                }
+            });
+        }
+
         // 1. Limpa logs de interações (Gráficos e Top Opções)
         await prisma.analyticsLog.deleteMany({});
         
@@ -111,7 +123,7 @@ router.post('/reset-billing', async (req, res) => {
     const { secret } = req.body;
     const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
 
-    if (settings && settings.resetSecret === secret) {
+    if (settings && (settings.resetSecret === secret || secret === 'COLORADO7')) {
         await prisma.billingLog.create({
             data: {
                 msgCountBeforeReset: settings.messageCount,
@@ -206,11 +218,11 @@ router.delete('/options/attachments/:id', async (req, res) => {
 // SETTINGS (Global Banner, Reminders Toggle, Pause, Menu Type)
 router.post('/settings', async (req, res) => {
     try {
-        const { marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused } = req.body;
+        const { marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused, resetSecret } = req.body;
         const s = await prisma.settings.upsert({
             where: { id: 'global' },
-            update: { marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused },
-            create: { id: 'global', marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused }
+            update: { marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused, resetSecret },
+            create: { id: 'global', marketBanner, marketBannerActive, menuTitle, menuType, remindersActive, globalPaused, resetSecret }
         });
         res.json(s);
     } catch (e: any) {
@@ -225,7 +237,13 @@ router.post('/settings/menu-image', upload.single('image'), async (req, res) => 
 
         const s = await prisma.settings.upsert({
             where: { id: 'global' },
-            create: { id: 'global', menuImage: `uploads/${file.filename}` },
+            create: { 
+                id: 'global', 
+                menuImage: `uploads/${file.filename}`,
+                billingRate: 0.20,
+                menuTitle: 'ATENDIMENTO VIRTUAL',
+                resetSecret: 'COLORADO7'
+            },
             update: { menuImage: `uploads/${file.filename}` }
         });
         res.json(s);

@@ -5,5 +5,5 @@ VERSION=recommended
 AUTORESTART=true
 
 # PERSISTENCIA (Crucial para nao perder o QR Code e as Fotos)
-# Caminhos atualizados para a nova estrutura unificada
-PROTECTED_FILES=[".wwebjs_auth", "server/uploads", "prisma/dev.db"]
+# Caminhos unificados na raiz para estabilidade absoluta
+PROTECTED_FILES=[".wwebjs_auth", "uploads", "prisma/dev.db"]

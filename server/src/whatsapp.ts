@@ -261,7 +261,7 @@ export function startStatusJob() {
 
             for (const item of pending) {
                 if (item.imagePath) {
-                    const filePath = path.join(__dirname, '../../', item.imagePath);
+                    const filePath = path.join(process.cwd(), item.imagePath);
                     if (fs.existsSync(filePath)) {
                         const media = MessageMedia.fromFilePath(filePath);
                         await whatsapp.sendMessage('status@broadcast', media, { caption: item.text || '' });
