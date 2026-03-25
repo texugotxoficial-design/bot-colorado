@@ -17,9 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Paths - Unificado para rodar direto do SRC (Total Compatibilidade SquareCloud)
-const distPath = path.resolve(__dirname, './public');
-const uploadsPath = path.resolve(__dirname, '../uploads');
+// Paths - Unificados na Raiz para estabilidade total
+const rootPath = process.cwd();
+const distPath = path.join(rootPath, 'public');
+const uploadsPath = path.join(rootPath, 'uploads');
 
 console.log(`📂 Servindo Frontend de: ${distPath}`);
 console.log(`📂 Servindo Uploads de: ${uploadsPath}`);

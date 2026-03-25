@@ -8,7 +8,7 @@ export default defineConfig({
     postcss: './postcss.config.js',
   },
   build: {
-    outDir: '../server/src/public',
+    outDir: '../public',
     emptyOutDir: true
   },
   server: {
