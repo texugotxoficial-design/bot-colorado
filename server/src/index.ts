@@ -17,10 +17,12 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Paths - Usando caminhos absolutos baseados na raiz do projeto
-const rootPath = process.cwd();
-const distPath = path.join(rootPath, 'client/dist');
-const uploadsPath = path.join(rootPath, 'server/uploads');
+// Paths - Caminhos robustos para producao
+const distPath = path.resolve(__dirname, '../../client/dist');
+const uploadsPath = path.resolve(__dirname, '../uploads');
+
+console.log(`📂 Servindo Frontend de: ${distPath}`);
+console.log(`📂 Servindo Uploads de: ${uploadsPath}`);
 
 // Create uploads if not exists
 if (!fs.existsSync(uploadsPath)) {
