@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "build": "cd client && npm run build && cd ../server && npx prisma db push --accept-data-loss && npx prisma generate && npm run build",
-    "start": "cd server && npm run start",
+    "build": "cd client && npm i && npx vite build && cd ../server && npm i && npx prisma db push --accept-data-loss && npx prisma generate && npx tsc",
+    "start": "cd server && node dist/index.js",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "prisma:push": "cd server && npx prisma db push --accept-data-loss",
     "postinstall": "cd server && npx prisma generate"
