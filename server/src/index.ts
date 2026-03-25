@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import router from './routes/api';
-import { whatsapp, checkLicense, startStatusJob, startInactivityJob } from './whatsapp';
+import { whatsapp, checkLicense, startStatusJob } from './whatsapp';
 
 dotenv.config();
 
@@ -57,7 +57,6 @@ app.listen(PORT, () => {
     
     // Start Background Jobs
     startStatusJob();
-    // startInactivityJob(); // Silenciado para evitar mensagens proativas sem comando
 
     // Auto-Initialize WhatsApp
     try {
