@@ -88,11 +88,15 @@ whatsapp.on('message_create', async (msg) => {
         // 4. Ignorar Grupos
         if (msg.from.includes('@g.us')) return;
 
-        // 📈 CONTABILIZAR INTERAÇÃO (No momento que a mensagem válida chega)
-        await prisma.settings.update({
-            where: { id: 'global' },
-            data: { messageCount: { increment: 1 } }
-        });
+        // 📈 CONTABILIZAR FATURAMENTO (Somente mensagens enviadas pelo BOT)
+        if (msg.fromMe) {
+            await prisma.settings.update({
+                where: { id: 'global' },
+                data: { messageCount: { increment: 1 } }
+            });
+            console.log('📈 [FATURAMENTO] +1 Resposta do Bot Contabilizada');
+            return; // Se é do bot, já contabilizamos e não precisamos processar o resto da lógica
+        }
 
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
         if (settings?.globalPaused) return;
