@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "cd client && npm install && npx vite build && cd ../server && npm install && npx prisma db push --accept-data-loss && npx prisma generate && npx tsc",
-    "start": "cd server && node dist/index.js",
+    "build": "cd client && npm install && npx vite build && npx prisma db push --schema=server/prisma/schema.prisma --accept-data-loss && npx prisma generate --schema=server/prisma/schema.prisma && cd server && npm install && npx tsc",
+    "start": "node server/dist/index.js",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
-    "prisma:generate": "cd server && npx prisma generate",
-    "prisma:push": "cd server && npx prisma db push --accept-data-loss"
+    "prisma:generate": "npx prisma generate --schema=server/prisma/schema.prisma",
+    "prisma:push": "npx prisma db push --schema=server/prisma/schema.prisma --accept-data-loss"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
