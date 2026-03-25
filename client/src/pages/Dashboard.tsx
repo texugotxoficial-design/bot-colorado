@@ -101,11 +101,11 @@ const Dashboard = () => {
 
     try {
       setIsSaving(true);
-      await api.post('/analytics/reset');
+      await api.post('/analytics/reset', { secret: secretInput.trim() });
       await fetchData();
       alert('✅ Faturamento zerado com sucesso!');
-    } catch (e) {
-      alert('Erro ao processar o reset.');
+    } catch (e: any) {
+      alert('❌ ERRO NO BANCO: ' + (e.response?.data?.error || e.message));
     } finally {
       setIsSaving(false);
     }

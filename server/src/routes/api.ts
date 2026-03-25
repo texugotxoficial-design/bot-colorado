@@ -85,6 +85,11 @@ router.get('/analytics/summary', async (req, res) => {
 
 router.post('/analytics/reset', async (req, res) => {
     try {
+        const { secret } = req.body;
+        if (secret?.toUpperCase() !== 'COLORADO7') {
+            return res.status(403).json({ error: 'Secret de segurança inválida' });
+        }
+
         console.log('🧹 [API] Solicitando limpeza total de estatísticas e faturamento...');
         
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
