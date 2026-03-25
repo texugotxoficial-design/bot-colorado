@@ -12,7 +12,7 @@ export let lastQr = '';
 export const whatsapp = new Client({
     authStrategy: new LocalAuth({
         clientId: 'bot-texugo',
-        dataPath: path.join(__dirname, '../.wwebjs_auth')
+        dataPath: path.join(process.cwd(), '.wwebjs_auth')
     }),
     puppeteer: {
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
