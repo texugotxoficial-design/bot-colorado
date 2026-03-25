@@ -9,9 +9,9 @@ const prisma = new PrismaClient();
 export let botStatus = 'OFFLINE';
 export let lastQr = '';
 
-// SEGURANÇA MÁXIMA: Só responder mensagens chegadas 30 segundos APÓS o bot ligar
-// Isso garante que qualquer sincronização de histórico seja ignorada
-const botStartTime = Math.floor(Date.now() / 1000) + 30;
+// SEGURANÇA MÁXIMA: Só responder mensagens chegadas 2 MINUTOS APÓS o bot ligar
+// Isso garante que QUALQUER sincronização de histórico ou notificações seja totalmente ignorada.
+const botStartTime = Math.floor(Date.now() / 1000) + 120;
 
 // MEMÓRIA DE CURTO PRAZO (Anti-Eco / Throttling)
 const lastMessageTimes = new Map<string, number>();
@@ -68,12 +68,13 @@ whatsapp.on('disconnected', async () => {
 // ---------------------------------------------------------
 // Helper: Send State Typing & Delay
 // ---------------------------------------------------------
-const replyWithTyping = async (msg: Message, content: any, options?: any) => {
+const replyWithTyping = async (msg: Message, content: any, options: any = {}) => {
     try {
+        // Simular Digitação (Humano)
         const chat = await msg.getChat();
         await chat.sendStateTyping();
-        // Delay fixo de 2.5 segundos para parecer humano
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise(res => setTimeout(res, 2000)); // Espera 2 segundos
+
         return await whatsapp.sendMessage(msg.from, content, options);
     } catch (e) {
         return await whatsapp.sendMessage(msg.from, content, options);
