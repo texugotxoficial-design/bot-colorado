@@ -142,12 +142,12 @@ whatsapp.on('message_create', async (msg) => {
                 
                 if (match.attachments && match.attachments.length > 0) {
                     for (const att of match.attachments) {
-                        const fullPath = path.resolve(__dirname, '../', att.path);
+                        const fullPath = path.join(process.cwd(), att.path);
                         if (fs.existsSync(fullPath)) {
                             const media = MessageMedia.fromFilePath(fullPath);
                             await whatsapp.sendMessage(msg.from, media);
                         } else {
-                            console.warn(`⚠️ Anexo não encontrado: ${fullPath}`);
+                            console.warn(`⚠️ Anexo de Opção não encontrado: ${fullPath}`);
                         }
                     }
                 }
@@ -205,10 +205,12 @@ async function showMenu(msg: Message, settings: any, options: any[]) {
     const mTitle = settings?.menuTitle || "ATENDIMENTO VIRTUAL";
 
     if (settings?.menuImage) {
-        const fullPath = path.resolve(__dirname, '../', settings.menuImage);
+        const fullPath = path.join(process.cwd(), settings.menuImage);
         if (fs.existsSync(fullPath)) {
             const media = MessageMedia.fromFilePath(fullPath);
             await whatsapp.sendMessage(msg.from, media);
+        } else {
+            console.warn(`⚠️ Banner do Menu não encontrado: ${fullPath}`);
         }
     }
 

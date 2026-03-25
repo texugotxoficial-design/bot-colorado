@@ -178,7 +178,7 @@ router.delete('/options/:id', async (req, res) => {
     try {
         const atts = await prisma.optionAttachment.findMany({ where: { optionId: req.params.id } });
         for(const att of atts) {
-            const f = path.join(__dirname, '../../', att.path);
+            const f = path.join(process.cwd(), att.path);
             if(fs.existsSync(f)) fs.unlinkSync(f);
         }
         await prisma.menuOption.delete({ where: { id: req.params.id } });
@@ -193,7 +193,7 @@ router.delete('/options/attachments/:id', async (req, res) => {
         const { id } = req.params;
         const att = await prisma.optionAttachment.findUnique({ where: { id } });
         if (att) {
-            const f = path.join(__dirname, '../../', att.path);
+            const f = path.join(process.cwd(), att.path);
             if (fs.existsSync(f)) fs.unlinkSync(f);
             await prisma.optionAttachment.delete({ where: { id } });
         }
@@ -238,7 +238,7 @@ router.delete('/settings/menu-image', async (req, res) => {
     try {
         const s = await prisma.settings.findUnique({ where: { id: 'global' } });
         if (s && s.menuImage) {
-            const f = path.join(__dirname, '../../', s.menuImage);
+            const f = path.join(process.cwd(), s.menuImage);
             if (fs.existsSync(f)) fs.unlinkSync(f);
             await prisma.settings.update({
                 where: { id: 'global' },
@@ -310,7 +310,7 @@ router.delete('/status-schedules/:id', async (req, res) => {
         const { id } = req.params;
         const s = await prisma.statusSchedule.findUnique({ where: { id } });
         if (s && s.imagePath) {
-            const f = path.join(__dirname, '../../', s.imagePath);
+            const f = path.join(process.cwd(), s.imagePath);
             if (fs.existsSync(f)) fs.unlinkSync(f);
         }
         await prisma.statusSchedule.delete({ where: { id } });
