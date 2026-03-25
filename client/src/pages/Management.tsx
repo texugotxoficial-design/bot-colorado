@@ -100,20 +100,29 @@ const Management = () => {
         </section>
         {/* Menu Global Banner */}
         <section className="bg-slate-900/40 border border-slate-800 p-12 rounded-[3.5rem] shadow-xl relative group">
-          <h2 className="text-3xl font-bold mb-10 text-white flex items-center gap-4">
-             <div className="bg-blue-500/20 p-2.5 rounded-xl"><ImageIcon className="text-blue-400" /></div>
-             Imagem do Menu (Encarte)
-          </h2>
+            <div className="flex items-center justify-between">
+                <h2 className="text-3xl font-bold text-white flex items-center gap-4">
+                    <div className="bg-blue-500/20 p-2.5 rounded-xl"><ImageIcon className="text-blue-400" /></div>
+                    Imagem do Menu (Encarte)
+                </h2>
+                {settings.menuImage && (
+                    <button 
+                        onClick={handleRemoveMenuImage} 
+                        className="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white px-6 py-2 rounded-2xl font-black text-[10px] uppercase flex items-center gap-2 transition-all border border-red-500/20"
+                    >
+                        <Trash2 size={14} /> Remover Foto Atual
+                    </button>
+                )}
+            </div>
           
           <div className="space-y-6">
             {settings.menuImage ? (
-              <div className="relative group/img aspect-video bg-slate-950 rounded-[2.5rem] overflow-hidden border border-slate-800">
-                <img src={`/${settings.menuImage}`} className="w-full h-full object-cover" alt="Menu Banner" />
-                <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                  <button onClick={handleRemoveMenuImage} className="bg-red-500 hover:bg-red-400 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase flex items-center gap-2">
-                    <Trash2 size={16} /> Remover Encarte
-                  </button>
-                </div>
+              <div className="relative aspect-video bg-slate-950 rounded-[2.5rem] overflow-hidden border-2 border-slate-800 hover:border-blue-500/30 transition-all">
+                <img 
+                    src={`${api.defaults.baseURL?.replace('/api', '')}/${settings.menuImage}`} 
+                    className="w-full h-full object-cover" 
+                    alt="Menu Banner" 
+                />
               </div>
             ) : (
               <label className="aspect-video bg-slate-950 border-2 border-dashed border-slate-800 rounded-[2.5rem] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/50 hover:bg-slate-900 transition-all group/upload">
