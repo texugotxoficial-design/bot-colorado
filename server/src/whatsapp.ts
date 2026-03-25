@@ -88,6 +88,12 @@ whatsapp.on('message_create', async (msg) => {
         // 4. Ignorar Grupos
         if (msg.from.includes('@g.us')) return;
 
+        // 📈 CONTABILIZAR INTERAÇÃO (No momento que a mensagem válida chega)
+        await prisma.settings.update({
+            where: { id: 'global' },
+            data: { messageCount: { increment: 1 } }
+        });
+
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
         if (settings?.globalPaused) return;
 
@@ -136,7 +142,6 @@ whatsapp.on('message_create', async (msg) => {
                 // LOG ANALYTICS
                 await prisma.analyticsLog.create({ data: { remoteId: msg.from, optionKey: match.key } });
 
-                await prisma.settings.update({ where: { id: 'global' }, data: { messageCount: { increment: 1 } } });
                 let finalMsg = `💎 *ATENDIMENTO: ${match.label}*\n━━━━━━━━━━━━━━━━━━━━━━\n\n${match.replyMessage}\n\n━━━━━━━━━━━━━━━━━━━━━━\n_Mande "Menu" para voltar_`;
                 await replyWithTyping(msg, finalMsg);
                 
