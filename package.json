@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "rm -rf server/dist && cd server && npm install && npx tsc && cd ../client && npm install && npx vite build && cd .. && npx prisma db push --accept-data-loss && npx prisma generate",
+    "prestart": "npm run build",
     "start": "node server/dist/index.js",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
     "prisma:generate": "npx prisma generate",
