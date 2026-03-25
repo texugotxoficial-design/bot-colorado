@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Secrets and Sessions (DO NOT SEND!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.wwebjs_auth/
+.wwebjs_cache/
+.wwebjs_auth_*
+
+# Database
+server/prisma/dev.db
+server/prisma/dev.db-journal
+
+# Uploads
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Logs and Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vscode/
+.DS_Store
+*.tmp
+*.log
+node_modules

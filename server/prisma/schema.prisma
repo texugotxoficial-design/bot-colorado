@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Settings {
+  id               String   @id @default("global")
+  billingRate      Float     @default(0.2)
+  messageCount     Int      @default(0)
+  resetSecret      String    @default("admin123")
+  botStatus        String    @default("OFFLINE")
+  globalPaused     Boolean   @default(false) //Bot Global Pause
+  marketBanner     String?
+  marketBannerActive Boolean  @default(false)
+  menuImage        String?
+  menuTitle        String    @default("ATENDIMENTO VIRTUAL")
+  menuType         String    @default("TEXT") // TEXT ou INTERACTIVE
+  remindersActive  Boolean  @default(false)
+  
+  // Inatividade
+  inactivityEnabled Boolean @default(false)
+  inactivityMinutes Int     @default(5)
+  inactivityMessage String  @default("Agradecemos seu contato! Como não tivemos retorno nos últimos minutos, estamos encerrando este atendimento.")
+  
+  updatedAt        DateTime @updatedAt
+}
+
+model StatusSchedule {
+  id          String   @id @default(uuid())
+  text        String?
+  imagePath   String?
+  scheduledAt DateTime
+  isPosted    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MenuOption {
+  id              String   @id @default(uuid())
+  key             String   @unique // e.g., "1", "2"
+  label           String
+  replyMessage    String
+  isActive        Boolean  @default(true)
+  attachments     OptionAttachment[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model OptionAttachment {
+  id        String   @id @default(uuid())
+  path      String
+  optionId  String
+  option    MenuOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DailyReminder {
+  id        String   @id @default(uuid())
+  dayOfWeek String   @unique // Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
+  message   String
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ConversationState {
+  id          String   @id @default(uuid())
+  remoteId    String   @unique // WhatsApp ID (e.g., 5511999999999@c.us)
+  pausedUntil DateTime? // Trava temporária
+  lastAction         DateTime @default(now())
+  inactivityNotified Boolean  @default(false)
+  hasSeenMenu        Boolean  @default(false)
+  lastGreetingAt     DateTime? 
+}
+
+model AnalyticsLog {
+  id        String   @id @default(uuid())
+  remoteId  String
+  optionKey String?  // "menu", "1", "2", etc.
+  timestamp DateTime @default(now())
+}
+
+model BillingLog {
+  id                   String   @id @default(uuid())
+  timestamp            DateTime @default(now())
+  msgCountBeforeReset  Int
+  resetSecretUsed      String
+}

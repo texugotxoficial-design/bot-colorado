@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background-color: #0A0B14;
+}
+
+/* Custom Webflow-like Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0D0E19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1F2133;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3B82F6/40;
+}
+
+/* Animations Utilities */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out infinite;
+}
+
+/* Smooth Navigation Active */
+.nav-link-active {
+  @apply bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-[0_10px_30px_-10px_rgba(16,185,129,0.3)];
+}
+
+/* Premium Card Hover */
+.premium-card {
+  @apply bg-slate-900/40 backdrop-blur-xl border border-slate-800/60 rounded-[3rem] transition-all hover:border-slate-700/80 hover:bg-slate-900/60;
+}
+
+/* Glassmorphism Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px border rgba(255, 255, 255, 0.05);
+}
