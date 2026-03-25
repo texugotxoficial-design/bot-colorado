@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 dist/
+# Removido public do ignore para deploy direto
+# public/
 dist-ssr/
 *.local
 
