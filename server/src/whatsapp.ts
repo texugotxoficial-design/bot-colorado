@@ -9,6 +9,9 @@ const prisma = new PrismaClient();
 export let botStatus = 'OFFLINE';
 export let lastQr = '';
 
+// MEMÓRIA DE CURTO PRAZO (Anti-Eco / Throttling)
+const lastMessageTimes = new Map<string, number>();
+
 export const whatsapp = new Client({
     authStrategy: new LocalAuth({
         clientId: 'bot-texugo',
@@ -95,6 +98,15 @@ whatsapp.on('message_create', async (msg) => {
 
         // 3. Ignorar Grupos
         if (msg.from.includes('@g.us')) return;
+
+        // 🛡️ TRAVA DE "UM DE CADA VEZ" (3 Segundos de Cooldown por Usuário)
+        const lastTime = lastMessageTimes.get(msg.from) || 0;
+        const now = Date.now();
+        if (now - lastTime < 3000) {
+            console.log(`⏳ [THROTTLE] Mensagem de ${msg.from} ignorada (Muitas mensagens rapidas)`);
+            return;
+        }
+        lastMessageTimes.set(msg.from, now);
 
         // 4. Se for "Message Yourself" e NÃO for o menu, deixamos o fluxo seguir para responder o teste
         // SEM contabilizar faturamento aqui, pois é o usuário digitando para si mesmo.
