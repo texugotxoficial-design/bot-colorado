@@ -75,7 +75,14 @@ const replyWithTyping = async (msg: Message, content: any, options?: any) => {
 
 whatsapp.on('message_create', async (msg) => {
     try {
-        // IGNORE GROUPS - Não queremos o bot respondendo em grupos
+        // SEGURANÇA MÁXIMA ANTI-LOOP
+        // 1. Ignorar se a mensagem foi enviada pelo próprio Bot
+        if (msg.fromMe) return;
+
+        // 2. Ignorar se a mensagem contiver a "assinatura" visual do bot
+        if (msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━')) return;
+
+        // 3. Ignorar Grupos
         if (msg.from.includes('@g.us')) return;
 
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
