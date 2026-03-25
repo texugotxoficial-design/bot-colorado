@@ -274,23 +274,25 @@ const Dashboard = () => {
                     {status.menuImage && (
                         <button 
                             onClick={async () => {
-                                if (window.confirm('Deseja remover a foto do encarte?')) {
+                                console.log('🗑️ Clique detectado no botão de remover');
+                                if (window.confirm('⚠️ DESEJA APAGAR ESTA FOTO AGORA?')) {
                                     try {
                                         setIsSaving(true);
+                                        console.log('🗑️ Enviando comando DELETE...');
                                         await api.delete('/settings/menu-image');
                                         await fetchData();
-                                        alert('Foto removida com sucesso!');
+                                        alert('✅ PRONTO! A foto foi removida do robô.');
                                     } catch (e: any) {
-                                        console.error('Erro ao remover foto:', e);
-                                        alert('Erro ao apagar imagem: ' + (e.response?.data?.error || e.message));
+                                        console.error('❌ Erro completo:', e);
+                                        alert('❌ ERRO AO APAGAR: ' + (e.response?.data?.error || e.message));
                                     } finally {
                                         setIsSaving(false);
                                     }
                                 }
                             }}
-                            className="flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-400 transition-all"
+                            className="flex items-center gap-2 text-[10px] font-black text-amber-500 hover:text-amber-400 p-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-all border border-amber-500/20"
                         >
-                            <Trash2 size={16} /> {isSaving ? 'APAGANDO...' : 'REMOVER FOTO'}
+                            <Trash2 size={14} /> {isSaving ? 'APAGANDO...' : 'X APAGAR FOTO AGORA'}
                         </button>
                     )}
                 </div>
