@@ -27,6 +27,7 @@ interface BotStatus {
   menuTitle: string;
   menuType?: string;
   remindersActive: boolean;
+  resetSecret: string;
 }
 
 const Dashboard = () => {
@@ -38,12 +39,14 @@ const Dashboard = () => {
     globalPaused: false,
     menuTitle: '',
     menuType: 'TEXT',
-    remindersActive: false
+    remindersActive: false,
+    resetSecret: 'ADMIN'
   });
 
   const [analytics, setAnalytics] = useState<any>({ day: 0, month: 0, topOptions: [] });
   const [tempBanner, setTempBanner] = useState('');
   const [tempTitle, setTempTitle] = useState('');
+  const [tempSecret, setTempSecret] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -60,6 +63,7 @@ const Dashboard = () => {
       if (!initialized) {
         setTempBanner(resStatus.data.marketBanner || '');
         setTempTitle(resStatus.data.menuTitle || '');
+        setTempSecret(resStatus.data.resetSecret || '');
         setInitialized(true);
       }
     } catch (e) {
@@ -86,10 +90,11 @@ const Dashboard = () => {
   };
 
   const handleResetBilling = async () => {
-    const secret = window.prompt('🔒 Digite a SENHA DE SEGURANÇA para zerar os custos:');
-    if (!secret) return;
+    const secretInput = window.prompt('🔒 Digite a SENHA DE SEGURANÇA para zerar os custos:');
+    if (!secretInput) return;
     
-    if (secret.toUpperCase() !== 'ADMIN') {
+    // Validar com a senha do banco (tirando espaços extras e ignorando maiúsculas se quiser, mas aqui deixamos exato)
+    if (secretInput.trim() !== status.resetSecret) {
         alert('❌ Senha incorreta!');
         return;
     }
@@ -271,6 +276,31 @@ const Dashboard = () => {
                   />
                   <button onClick={() => saveSettings({ menuTitle: tempTitle })} className="bg-emerald-500 p-4 rounded-2xl text-slate-950 hover:bg-emerald-400 transition-all"><Save size={20} /></button>
                 </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                  <Lock className="text-amber-500 w-4 h-4" /> Senha de Segurança (Reset de Custos)
+                </h3>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={tempSecret}
+                      onChange={(e) => setTempSecret(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl text-white outline-none focus:border-amber-500 font-mono font-bold"
+                      placeholder="Senha para zerar dados"
+                    />
+                    <Lock size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-800" />
+                  </div>
+                  <button 
+                    onClick={() => saveSettings({ resetSecret: tempSecret })} 
+                    className="bg-amber-500 p-4 rounded-2xl text-slate-950 hover:bg-amber-400 transition-all font-black"
+                  >
+                    {isSaving ? '...' : <Save size={20} />}
+                  </button>
+                </div>
+                <p className="text-[9px] text-slate-600 mt-1 italic">* Use esta senha sempre que clicar na lixeira para zerar os custos.</p>
               </div>
             </div>
 
