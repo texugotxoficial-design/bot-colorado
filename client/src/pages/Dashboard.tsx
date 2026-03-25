@@ -229,7 +229,7 @@ const Dashboard = () => {
                             <input 
                                 type="checkbox" 
                                 className="sr-only peer" 
-                                checked={status.remindersActive} // Usando remindersActive ou adicionando marketBannerActive no status
+                                checked={status.marketBannerActive}
                                 onChange={(e) => saveSettings({ marketBannerActive: e.target.checked })} 
                             />
                             <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
