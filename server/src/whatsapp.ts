@@ -75,28 +75,30 @@ const replyWithTyping = async (msg: Message, content: any, options?: any) => {
 
 whatsapp.on('message_create', async (msg) => {
     try {
+        const isSelfChat = msg.from === msg.to; // Conversar consigo mesmo (Teste)
+        const hasMenuSignature = msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━');
+
         // SEGURANÇA MÁXIMA ANTI-LOOP
-        // 1. Se for mensagem pra fora (cliente), ignorar se for fromMe
-        if (msg.fromMe && msg.from !== msg.to) return;
-
-        // 2. Se for mensagem pra você mesmo (teste), ignorar apenas se for o divisor (loop)
-        if (msg.fromMe && msg.from === msg.to && msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━')) return;
-
-        // 3. Se for mensagem recebida de clientes, ignorar se tiver o divisor (para evitar loop se o cliente reenviar sua msg)
-        if (!msg.fromMe && msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━')) return;
-
-        // 4. Ignorar Grupos
-        if (msg.from.includes('@g.us')) return;
-
-        // 📈 CONTABILIZAR FATURAMENTO (Somente mensagens enviadas pelo BOT)
-        if (msg.fromMe) {
+        // 1. Se for mensagem pra fora (cliente), ignorar se for fromMe (resposta do bot)
+        if (msg.fromMe && !isSelfChat) {
+            // 📈 CONTABILIZAR FATURAMENTO (Memsagem enviada pelo BOT para CLIENTE)
             await prisma.settings.update({
                 where: { id: 'global' },
                 data: { messageCount: { increment: 1 } }
             });
             console.log('📈 [FATURAMENTO] +1 Resposta do Bot Contabilizada');
-            return; // Se é do bot, já contabilizamos e não precisamos processar o resto da lógica
+            return;
         }
+
+        // 2. Se for o Menu (com assinatura), ignorar para evitar loop (tanto do cliente quanto de si mesmo)
+        if (hasMenuSignature) return;
+
+        // 3. Ignorar Grupos
+        if (msg.from.includes('@g.us')) return;
+
+        // 4. Se for "Message Yourself" e NÃO for o menu, deixamos o fluxo seguir para responder o teste
+        // SEM contabilizar faturamento aqui, pois é o usuário digitando para si mesmo.
+        if (msg.fromMe && !isSelfChat) return;
 
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
         if (settings?.globalPaused) return;
