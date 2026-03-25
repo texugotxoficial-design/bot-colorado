@@ -17,24 +17,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Paths - Busca dinâmica para funcionar tanto em SRV quanto em DIST (SquareCloud)
-const possiblePaths = [
-    path.resolve(__dirname, './public'),
-    path.resolve(__dirname, '../dist/public'),
-    path.resolve(process.cwd(), 'server/dist/public'),
-    path.resolve(process.cwd(), 'dist/public')
-];
-
-console.log('--- 🔍 DIAGNÓSTICO DE PASTAS ---');
-try {
-    const rootFiles = fs.readdirSync(process.cwd());
-    console.log(`Raiz do projeto (${process.cwd()}):`, rootFiles);
-    if (fs.existsSync(path.join(process.cwd(), 'server'))) {
-        console.log(`Pasta server/:`, fs.readdirSync(path.join(process.cwd(), 'server')));
-    }
-} catch (e) { console.log('Erro no diagnostico', e); }
-
-const distPath = possiblePaths.find(p => fs.existsSync(p)) || possiblePaths[0];
+// Paths - Unificado para rodar direto do SRC (Total Compatibilidade SquareCloud)
+const distPath = path.resolve(__dirname, './public');
 const uploadsPath = path.resolve(__dirname, '../uploads');
 
 console.log(`📂 Servindo Frontend de: ${distPath}`);
