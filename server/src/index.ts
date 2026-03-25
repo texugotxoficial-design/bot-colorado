@@ -57,7 +57,7 @@ app.listen(PORT, () => {
     
     // Start Background Jobs
     startStatusJob();
-    startInactivityJob();
+    // startInactivityJob(); // Silenciado para evitar mensagens proativas sem comando
 
     // Auto-Initialize WhatsApp
     try {
