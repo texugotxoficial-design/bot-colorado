@@ -135,9 +135,12 @@ whatsapp.on('message_create', async (msg) => {
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
         if (settings?.globalPaused) return;
 
-        // NORMALIZAÇÃO DO INPUT
+        // NORMALIZAÇÃO DO INPUT (Agora removendo também pontuação para ser mais tolerante: "Oi!" -> "oi")
         const selectionId = (msg as any).selectedRowId;
-        const bodyInput = msg.body.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        const bodyInput = msg.body.toLowerCase().trim().normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^\w\s]/gi, ''); 
+            
         const input = selectionId ? selectionId.toLowerCase() : bodyInput;
 
         console.log(`📩 Mensagem de ${msg.from}: input='${input}'`);
@@ -162,47 +165,43 @@ whatsapp.on('message_create', async (msg) => {
             orderBy: { key: 'asc' }
         });
 
-        const isMenuCommand = ['menu', 'oi', 'ola', 'olá', 'inicio', 'ajuda', 'opcoes', 'voltar', 'start'].includes(input);
+        const allowedTriggers = ['bom dia', 'boa tarde', 'boa noite', 'oi', 'ola'];
+        const isMenuCommand = allowedTriggers.includes(input);
         const match = options.find(o => o.key.toLowerCase().trim() === input);
-        const isExit = ['0', 'sair', 'finalizar', 'encerrar', 'tchau', 'obrigado', 'obrigada'].includes(input);
 
-        // LOGIC: EXIT
-        if (isExit) {
-            const goodbye = "🤝 *Atendimento Finalizado!*\n━━━━━━━━━━━━━━━━━━━━━━\n\nFoi um prazer atender você. Se precisar de algo novo, basta enviar *Menu* a qualquer momento.\n\n_Tenha um ótimo dia!_ 👋";
-            await replyWithTyping(msg, goodbye);
-            await prisma.conversationState.update({ where: { id: state.id }, data: { hasSeenMenu: false } });
+        // --- FILTRO OBRIGATÓRIO (REQUISITO: RESPONDER APENAS A GATILHOS OU OPÇÕES) ---
+        // Se NÃO for um dos gatilhos permitidos E NÃO for uma opção válida do menu, IGNORA.
+        if (!isMenuCommand && !match) {
+            console.log(`🔇 Ignorando input '${input}' de ${msg.from} (Não é um gatilho permitido).`);
+            return;
+        }
+
+        // Se for o primeiro contato (nunca viu menu) e NÃO for um dos gatilhos, IGNORA.
+        if (!isMenuCommand && !state.hasSeenMenu) {
+            console.log(`🔇 Ignorando input '${input}' de ${msg.from} (Chamada inicial sem gatilho).`);
             return;
         }
 
         // LOGIC: IF SEEN MENU -> PROCESS VALID INPUT ONLY
-        if (state.hasSeenMenu) {
-            if (match) {
-                // LOG ANALYTICS
-                await prisma.analyticsLog.create({ data: { remoteId: msg.from, optionKey: match.key } });
+        if (state.hasSeenMenu && match) {
+            // LOG ANALYTICS
+            await prisma.analyticsLog.create({ data: { remoteId: msg.from, optionKey: match.key } });
 
-                let finalMsg = `💎 *ATENDIMENTO: ${match.label}*\n━━━━━━━━━━━━━━━━━━━━━━\n\n${match.replyMessage}\n\n━━━━━━━━━━━━━━━━━━━━━━\n_Mande "Menu" para voltar_`;
-                await replyWithTyping(msg, finalMsg);
-                
-                if (match.attachments && match.attachments.length > 0) {
-                    for (const att of match.attachments) {
-                        const fullPath = path.join(process.cwd(), att.path);
-                        if (fs.existsSync(fullPath)) {
-                            const media = MessageMedia.fromFilePath(fullPath);
-                            await whatsapp.sendMessage(msg.from, media);
-                        } else {
-                            console.warn(`⚠️ Anexo de Opção não encontrado: ${fullPath}`);
-                        }
+            let finalMsg = `💎 *ATENDIMENTO: ${match.label}*\n━━━━━━━━━━━━━━━━━━━━━━\n\n${match.replyMessage}\n\n━━━━━━━━━━━━━━━━━━━━━━\n_Mande "Oi" para voltar ao menu principal_`;
+            await replyWithTyping(msg, finalMsg);
+            
+            if (match.attachments && match.attachments.length > 0) {
+                for (const att of match.attachments) {
+                    const fullPath = path.join(process.cwd(), att.path);
+                    if (fs.existsSync(fullPath)) {
+                        const media = MessageMedia.fromFilePath(fullPath);
+                        await whatsapp.sendMessage(msg.from, media);
+                    } else {
+                        console.warn(`⚠️ Anexo de Opção não encontrado: ${fullPath}`);
                     }
                 }
-                return;
             }
-
-            if (isMenuCommand) {
-                 // Fall through to showMenu below
-            } else {
-                console.log(`🔇 Ignorando input '${input}' de ${msg.from} (Menu já exibido).`);
-                return;
-            }
+            return;
         }
 
         // LOGIC: DEFAULT (FIRST MESSAGE or MENU COMMAND)
@@ -283,8 +282,9 @@ async function showMenu(msg: Message, settings: any, options: any[]) {
     }
 }
 
-// Job: Status Posting (Fica escondido pois so envia para 'status@broadcast' e nao para clientes)
+// Job: Status Posting (Desativado conforme requisito de não enviar nada sozinho)
 export function startStatusJob() {
+    return; // Desativado para garantir que o bot só responda quando chamado
     setInterval(async () => {
         if (botStatus !== 'ONLINE') return;
         try {
