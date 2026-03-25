@@ -86,14 +86,21 @@ const Dashboard = () => {
   };
 
   const handleResetBilling = async () => {
-    if (!window.confirm('⚠️ DESEJA ZERAR O CONTADOR DE FATURAMENTO E MENSAGENS?')) return;
+    const secret = window.prompt('🔒 Digite a SENHA DE SEGURANÇA para zerar os custos:');
+    if (!secret) return;
+    
+    if (secret.toUpperCase() !== 'ADMIN') {
+        alert('❌ Senha incorreta!');
+        return;
+    }
+
     try {
       setIsSaving(true);
       await api.post('/analytics/reset');
       await fetchData();
-      alert('✅ Contador zerado com sucesso!');
+      alert('✅ Faturamento zerado com sucesso!');
     } catch (e) {
-      alert('Erro ao resetar dados.');
+      alert('Erro ao processar o reset.');
     } finally {
       setIsSaving(false);
     }
