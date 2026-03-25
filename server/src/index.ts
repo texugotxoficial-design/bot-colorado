@@ -17,8 +17,12 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Paths - Unificados para SquareCloud
-const distPath = path.resolve(__dirname, './public');
+// Paths - Busca dinâmica para funcionar tanto em SRV quanto em DIST (SquareCloud)
+const possiblePaths = [
+    path.resolve(__dirname, './public'),
+    path.resolve(__dirname, '../dist/public')
+];
+const distPath = possiblePaths.find(p => fs.existsSync(p)) || possiblePaths[0];
 const uploadsPath = path.resolve(__dirname, '../uploads');
 
 console.log(`📂 Servindo Frontend de: ${distPath}`);
