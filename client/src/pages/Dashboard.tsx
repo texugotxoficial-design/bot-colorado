@@ -22,6 +22,8 @@ interface BotStatus {
   billingRate: number;
   globalPaused: boolean;
   marketBanner?: string;
+  marketBannerActive?: boolean;
+  menuImage?: string;
   menuTitle: string;
   menuType?: string;
   remindersActive: boolean;
@@ -217,9 +219,23 @@ const Dashboard = () => {
           <div className="premium-card p-8 bg-gradient-to-br from-slate-900 to-slate-950">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Megaphone className="text-emerald-400 w-4 h-4" /> Boas-vindas (Frase do Encarte)
-                </h3>
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <Megaphone className="text-emerald-400 w-4 h-4" /> Boas-vindas (Frase do Encarte)
+                    </h3>
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase">Banner Ativo?</span>
+                        <label className="relative inline-flex items-center cursor-pointer scale-75">
+                            <input 
+                                type="checkbox" 
+                                className="sr-only peer" 
+                                checked={status.remindersActive} // Usando remindersActive ou adicionando marketBannerActive no status
+                                onChange={(e) => saveSettings({ marketBannerActive: e.target.checked })} 
+                            />
+                            <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+                </div>
                 <div className="flex gap-2">
                   <input
                     type="text"

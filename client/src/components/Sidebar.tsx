@@ -15,7 +15,6 @@ const Sidebar = () => {
       <nav className="flex-1 p-4 space-y-2">
         <NavItem to="/" icon={<LayoutDashboard className="w-5 h-5" />} label="Dashboard" />
         <NavItem to="/menu" icon={<Menu className="w-5 h-5" />} label="Menu Bot" />
-          <NavItem to="/management" icon={<Megaphone className="w-5 h-5" />} label="Gestão Geral" />
           <NavItem to="/status" icon={<Camera className="w-5 h-5" />} label="Status WhatsApp" />
           <NavItem to="/billing" icon={<CreditCard className="w-5 h-5" />} label="Faturamento" />
       </nav>

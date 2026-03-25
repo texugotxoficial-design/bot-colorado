@@ -32,7 +32,6 @@ function App() {
         
         <Route path="/" element={<Protected><Dashboard /></Protected>} />
         <Route path="/menu" element={<Protected><MenuConfig /></Protected>} />
-        <Route path="/management" element={<Protected><Management /></Protected>} />
         <Route path="/status" element={<Protected><StatusSchedule /></Protected>} />
         <Route path="/billing" element={<Protected><Billing /></Protected>} />
 
