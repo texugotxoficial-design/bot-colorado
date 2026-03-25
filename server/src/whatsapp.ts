@@ -206,11 +206,18 @@ async function showMenu(msg: Message, settings: any, options: any[]) {
 
     if (settings?.menuImage) {
         const fullPath = path.join(process.cwd(), settings.menuImage);
+        console.log(`📸 [BANNER] Tentando enviar banner: ${fullPath}`);
+        
         if (fs.existsSync(fullPath)) {
-            const media = MessageMedia.fromFilePath(fullPath);
-            await whatsapp.sendMessage(msg.from, media);
+            try {
+                const media = MessageMedia.fromFilePath(fullPath);
+                await whatsapp.sendMessage(msg.from, media);
+                console.log(`✅ [BANNER] Banner enviado com sucesso para ${msg.from}`);
+            } catch (e: any) {
+                console.error(`❌ [BANNER] Erro ao enviar a foto do banner:`, e);
+            }
         } else {
-            console.warn(`⚠️ Banner do Menu não encontrado: ${fullPath}`);
+            console.warn(`⚠️ [BANNER] Arquivo não localizado: ${fullPath}`);
         }
     }
 
