@@ -75,18 +75,7 @@ const replyWithTyping = async (msg: Message, content: any, options?: any) => {
 
 whatsapp.on('message_create', async (msg) => {
     try {
-        // MODO TESTE DEBUG
-        if (msg.from === msg.to) {
-             console.log(`🔍 [DEBUG] Mensagem PRÓPRIA capturada: ${msg.body}`);
-        }
-
-        // MODO TESTE: Responder apenas para a própria conta (Chat de "Você")
-        if (msg.from !== msg.to) return;
-        
-        // EVITAR LOOP: Se a mensagem contiver o divisor padrão do bot, ignoramos
-        if (msg.body.includes('━━━━━━━━━━━━━━━━━━━━━━')) return;
-
-        // IGNORE GROUPS
+        // IGNORE GROUPS - Não queremos o bot respondendo em grupos
         if (msg.from.includes('@g.us')) return;
 
         const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
