@@ -262,14 +262,25 @@ router.delete('/settings/menu-image', async (req, res) => {
         const s = await prisma.settings.findUnique({ where: { id: 'global' } });
         if (s && s.menuImage) {
             const f = path.join(process.cwd(), s.menuImage);
-            if (fs.existsSync(f)) fs.unlinkSync(f);
+            try {
+                if (fs.existsSync(f)) {
+                    console.log(`🗑️ [API] Tentando apagar arquivo físico: ${f}`);
+                    fs.unlinkSync(f);
+                }
+            } catch (e) {
+                console.warn(`⚠️ [API] Nao foi possivel apagar o arquivo fisico (travado ou inexistente), mas seguindo com a limpeza do banco.`);
+            }
+
+            // SEMRE limpar o banco, independente se o arquivo sumiu ou nao
             await prisma.settings.update({
                 where: { id: 'global' },
                 data: { menuImage: null }
             });
+            console.log(`✨ [API] Banco de dados limpo com sucesso.`);
         }
         res.json({ success: true });
     } catch (e: any) {
+        console.error('❌ [API] Erro fatal ao remover foto:', e);
         res.status(500).json({ error: e.message });
     }
 });
