@@ -218,7 +218,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Megaphone className="text-emerald-400 w-4 h-4" /> Boas-vindas (Market Banner)
+                  <Megaphone className="text-emerald-400 w-4 h-4" /> Boas-vindas (Frase do Encarte)
                 </h3>
                 <div className="flex gap-2">
                   <input
@@ -226,6 +226,7 @@ const Dashboard = () => {
                     value={tempBanner}
                     onChange={(e) => setTempBanner(e.target.value)}
                     className="flex-1 bg-slate-950 border border-slate-800 p-4 rounded-2xl text-white outline-none focus:border-emerald-500"
+                    placeholder="Ex: Ofertas do dia no Supermercado Colorado!"
                   />
                   <button onClick={() => saveSettings({ marketBanner: tempBanner })} className="bg-emerald-500 p-4 rounded-2xl text-slate-950 hover:bg-emerald-400 transition-all"><Save size={20} /></button>
                 </div>
@@ -233,7 +234,7 @@ const Dashboard = () => {
 
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <Edit3 className="text-emerald-400 w-4 h-4" /> Título Superior
+                  <Edit3 className="text-emerald-400 w-4 h-4" /> Título Superior (Negrito)
                 </h3>
                 <div className="flex gap-2">
                   <input
@@ -241,10 +242,90 @@ const Dashboard = () => {
                     value={tempTitle}
                     onChange={(e) => setTempTitle(e.target.value)}
                     className="flex-1 bg-slate-950 border border-slate-800 p-4 rounded-2xl text-white outline-none focus:border-emerald-500"
+                    placeholder="Ex: 🔥 OFERTAS IMBATÍVEIS 🔥"
                   />
                   <button onClick={() => saveSettings({ menuTitle: tempTitle })} className="bg-emerald-500 p-4 rounded-2xl text-slate-950 hover:bg-emerald-400 transition-all"><Save size={20} /></button>
                 </div>
               </div>
+            </div>
+
+            {/* FOTO DO ENCARTE */}
+            <div className="mt-8 pt-8 border-t border-slate-800 space-y-6">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                        <Activity className="text-purple-400 w-4 h-4" /> Foto Principal do Menu (Encarte)
+                    </h3>
+                    {status.menuImage && (
+                        <button 
+                            onClick={async () => {
+                                if (window.confirm('Deseja remover a foto do encarte?')) {
+                                    await api.delete('/settings/menu-image');
+                                    fetchData();
+                                }
+                            }}
+                            className="flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-400 transition-all"
+                        >
+                            <Trash2 size={16} /> REMOVER FOTO
+                        </button>
+                    )}
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                    {status.menuImage ? (
+                        <div className="relative group">
+                            <img 
+                                src={`${api.defaults.baseURL?.replace('/api', '')}/${status.menuImage}`} 
+                                alt="Banner Atual" 
+                                className="w-full md:w-48 h-48 object-cover rounded-3xl border-2 border-slate-800 group-hover:border-purple-500/50 transition-all"
+                            />
+                            <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center rounded-3xl">
+                                <p className="text-[10px] font-bold text-white uppercase text-center px-4">Foto Ativa no WhatsApp</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="w-full md:w-48 h-48 bg-slate-950 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center text-slate-600 gap-2">
+                            <Megaphone size={30} className="opacity-20" />
+                            <span className="text-[10px] font-bold uppercase tracking-tighter">Sem foto no menu</span>
+                        </div>
+                    )}
+
+                    <div className="flex-1 space-y-4 w-full">
+                        <p className="text-xs text-slate-500 leading-relaxed">
+                            Esta foto será enviada automaticamente para o cliente assim que ele abrir o menu principal. Recomendamos fotos de encartes, promoções do dia ou o logo do mercado.
+                        </p>
+                        <div className="relative">
+                            <input 
+                                type="file" 
+                                accept="image/*"
+                                className="hidden" 
+                                id="banner-upload"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const formData = new FormData();
+                                    formData.append('image', file);
+                                    setIsSaving(true);
+                                    try {
+                                        await api.post('/settings/menu-image', formData, {
+                                            headers: { 'Content-Type': 'multipart/form-data' }
+                                        });
+                                        fetchData();
+                                    } catch (e) {
+                                        alert('Erro ao subir imagem');
+                                    } finally {
+                                        setIsSaving(false);
+                                    }
+                                }}
+                            />
+                            <label 
+                                htmlFor="banner-upload"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-bold text-xs cursor-pointer transition-all active:scale-95"
+                            >
+                                <Megaphone size={16} /> {status.menuImage ? 'ALTERAR FOTO DO ENCARTE' : 'ADICIONAR FOTO DO ENCARTE'}
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Selector de Estilo de Menu */}
