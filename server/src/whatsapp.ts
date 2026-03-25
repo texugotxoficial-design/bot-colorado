@@ -251,7 +251,7 @@ async function showMenu(msg: Message, settings: any, options: any[]) {
     }
 }
 
-// Job: Status Posting
+// Job: Status Posting (Fica escondido pois so envia para 'status@broadcast' e nao para clientes)
 export function startStatusJob() {
     setInterval(async () => {
         if (botStatus !== 'ONLINE') return;
@@ -275,43 +275,6 @@ export function startStatusJob() {
             }
         } catch (e) {
             console.error('Erro no Job de Status:', e);
-        }
-    }, 60000);
-}
-
-// Job: Inactivity Monitoring
-export function startInactivityJob() {
-    setInterval(async () => {
-        if (botStatus !== 'ONLINE') return;
-        try {
-            const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
-            if (!settings || !settings.inactivityEnabled) return;
-
-            const timeout = settings.inactivityMinutes || 5;
-            const threshold = new Date(Date.now() - timeout * 60000);
-
-            const inactive = await prisma.conversationState.findMany({
-                where: {
-                    lastAction: { lte: threshold },
-                    inactivityNotified: false
-                }
-            });
-
-            for (const conv of inactive) {
-                // Enviar Mensagem de Inatividade + Dica de Status
-                const inactivityAlert = `${settings.inactivityMessage}\n\n📌 *DICA DO COLORADO:*\n_Salve nosso número para ver nossos Status de Ofertas diariamente!_ 🍏🍓`;
-                await whatsapp.sendMessage(conv.remoteId, inactivityAlert);
-                
-                // Marcar como notificado para não repetir
-                await prisma.conversationState.update({
-                    where: { id: conv.id },
-                    data: { inactivityNotified: true, hasSeenMenu: false }
-                });
-                
-                console.log(`⏰ Inatividade enviada para: ${conv.remoteId} (Resetando Menu)`);
-            }
-        } catch (e) {
-            console.error('Erro no Job de Inatividade:', e);
         }
     }, 60000);
 }
