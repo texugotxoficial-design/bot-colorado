@@ -277,8 +277,13 @@ export function startStatusJob() {
         if (botStatus !== 'ONLINE') return;
         try {
             const now = new Date();
+            const sessionStart = new Date(botStartTime * 1000);
+
             const pending = await prisma.statusSchedule.findMany({
-                where: { scheduledAt: { lte: now }, isPosted: false }
+                where: { 
+                    scheduledAt: { lte: now, gt: sessionStart }, 
+                    isPosted: false 
+                }
             });
 
             for (const item of pending) {
